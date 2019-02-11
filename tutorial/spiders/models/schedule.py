@@ -1,4 +1,4 @@
-from mongoengine import Document,StringField,IntField,EmbeddedDocumentField,ListField
+﻿from mongoengine import Document,StringField,IntField,EmbeddedDocumentField,ListField
 from . import GameIndex
 
 class Schedule(Document):

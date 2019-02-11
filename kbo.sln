@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "kbo", "kbo.pyproj", "{86604C21-C5A7-4B0F-87D3-2AA0D05BAFB3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{86604C21-C5A7-4B0F-87D3-2AA0D05BAFB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86604C21-C5A7-4B0F-87D3-2AA0D05BAFB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8FADACAB-D26C-438F-88BA-0568035178CF}
+	EndGlobalSection
+EndGlobal

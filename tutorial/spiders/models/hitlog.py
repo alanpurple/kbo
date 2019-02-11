@@ -1,4 +1,4 @@
-from mongoengine import EmbeddedDocument,StringField,IntField,FloatField
+﻿from mongoengine import EmbeddedDocument,StringField,IntField,FloatField
 
 class HitLog(EmbeddedDocument):
     thrower=StringField()

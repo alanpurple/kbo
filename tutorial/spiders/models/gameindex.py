@@ -1,4 +1,4 @@
-from mongoengine import EmbeddedDocument,StringField,IntField
+﻿from mongoengine import EmbeddedDocument,StringField,IntField
 
 class GameIndex(EmbeddedDocument):
     date=StringField()
