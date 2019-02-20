@@ -27,6 +27,9 @@
     <Compile Include="tutorial\spiders\models\gameindex.py" />
     <Compile Include="tutorial\spiders\models\hitlog.py" />
     <Compile Include="tutorial\spiders\models\kbolog.py" />
+    <Compile Include="tutorial\spiders\models\roasterinfo.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="tutorial\spiders\models\schedule.py" />
     <Compile Include="tutorial\spiders\models\__init__.py" />
     <Compile Include="tutorial\spiders\quotes_spider.py" />

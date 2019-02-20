@@ -3,8 +3,9 @@ from scrapy.selector import Selector
 from mongoengine import connect
 import json
 from bson import json_util
+from os.path import exists
 
-from .models import HitLog,KboLog,Schedule
+from .models import HitLog,KboLog,Schedule,BatterInfo,RoasterInfo
 
 # connect('kbostatiz',host='10.102.61.251',port=27017)
 connect('kbostatiz')
@@ -16,12 +17,13 @@ class StatizSpider(scrapy.Spider):
         url='http://www.statiz.co.kr/boxscore.php'
 
         schedules=Schedule.objects()
-        for elem in schedules:
+        for elem in schedules.first:
             for game in elem.gameList:
 
                 gameId=game.date+game.stadium+str(game.hour)
 
-                if KboLog.objects(pk=gameId).first()==None:
+                # if KboLog.objects(pk=gameId).first()==None:
+                if not exists('./rawdata/'+gameId+'.html'):
                     formdata={
                         'opt':'5',
                         'date':game.date,
@@ -34,13 +36,39 @@ class StatizSpider(scrapy.Spider):
 
         gameId=response.meta['gameId']
 
-        #with open(gameId+'.html','wb') as f:
-        #    f.write(response.body)
+        game = KboLog(id=gameId)
+        game_json={}
 
         # No need to crawl heads, we already know, it's all same
         # heads= response.css('section.content div')[0].xpath('./div')[1].xpath('./div')[1].xpath('./div/div/div').css('table tr')[0].css('th::text').extract()
+        content_divs=response.css('section.content div')[0].xpath('./div')[1].xpath('./div')
+        bat_seq_divs=content_divs[0].xpath('./div')
+        away_team_name=bat_seq_divs[0].xpath('./div/div')[0].css('h3 b::text')[0].extract().split(',')[0]
+        away_team_rows=bat_seq_divs[0].xpath('./div/div')[1].css('table tr')
+        away_thrower_raw=away_team_rows[-1].css('::text').extract()
+        away_thrower_json={'name':away_thrower_raw[0],'position':away_thrower_raw[1],'toota':away_thrower_raw[2]}
+        away_thrower=BatterInfo(name=away_thrower_raw[0],position=away_thrower_raw[1],toota=away_thrower_raw[2])
+        away_batters_raw=[elem.css('::text').extract() for elem in away_team_rows[1:-1]]
+        away_batters_json=[{'name':elem[1],'position':elem[2],'toota':elem[3]} for elem in away_batters_raw]
+        away_batters=[BatterInfo(name=elem[1],position=elem[2],toota=elem[3]) for elem in away_batters_raw]
 
-        rows=response.css('section.content div')[0].xpath('./div')[1].xpath('./div')[1].xpath('./div/div/div').css('table tr')
+        game.awayTeam=RoasterInfo(teamName=away_team_name,thrower=away_thrower,batters=away_batters)
+        game_json['awayTeam']={'teamName':away_team_name,'thrower':away_thrower_json,'batters':away_batters_json}
+
+        home_team_name=bat_seq_divs[1].xpath('./div/div')[0].css('h3 b::text')[0].extract().split(',')[0]
+        home_team_rows=bat_seq_divs[1].xpath('./div/div')[1].css('table tr')
+        home_thrower_raw=home_team_rows[-1].css('::text').extract()
+        home_thrower_json={'name':home_thrower_raw[0],'position':home_thrower_raw[1],'toota':home_thrower_raw[2]}
+        home_thrower=BatterInfo(name=home_thrower_raw[0],position=home_thrower_raw[1],toota=home_thrower_raw[2])
+        home_batters_raw=[elem.css('::text').extract() for elem in home_team_rows[1:-1]]
+        home_batters_json=[{'name':elem[1],'position':elem[2],'toota':elem[3]} for elem in home_batters_raw]
+        home_batters=[BatterInfo(name=elem[1],position=elem[2],toota=elem[3]) for elem in home_batters_raw]
+
+        game.homeTeam=RoasterInfo(teamName=home_team_name,thrower=home_thrower,batters=home_batters)
+        game_json['homeTeam']={'teamName':home_team_name,'thrower':home_thrower_json,'batters':home_batters_json}
+
+
+        rows=content_divs[1].xpath('./div/div/div').css('table tr')
         data_len=len(rows)-1
 
         game_data=[]
@@ -104,10 +132,14 @@ class StatizSpider(scrapy.Spider):
         game_data.append(inning_data)
         json_data.append(inning_data_json)
 
-        game = KboLog(id=gameId)
+        
         game.innings=game_data
+        game_json['innings']=json_data
 
         game.save()
 
-        with open(gameId+'.json','w') as jsonfile:
-            json.dump(json_data,jsonfile,ensure_ascii=False)
+        with open('./jsondata/'+gameId+'.json','w') as jsonfile:
+            json.dump(game_json,jsonfile,ensure_ascii=False)
+
+        with open('./rawdata/'+gameId+'.html','wb') as f:
+            f.write(response.body)
