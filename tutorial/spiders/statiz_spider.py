@@ -17,7 +17,7 @@ class StatizSpider(scrapy.Spider):
         url='http://www.statiz.co.kr/boxscore.php'
 
         schedules=Schedule.objects()
-        for elem in schedules.first:
+        for elem in schedules:
             for game in elem.gameList:
 
                 gameId=game.date+game.stadium+str(game.hour)
